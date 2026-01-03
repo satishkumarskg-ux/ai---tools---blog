@@ -1,74 +1,43 @@
-// script.js for Earth orbit animation
+const canvas = document.getElementById("orbitCanvas");
+const ctx = canvas.getContext("2d");
 
-const canvas = document.getElementById('orbitCanvas');
-const ctx = canvas.getContext('2d');
-
-// Full screen canvas
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
 
 let particles = [];
+const COUNT = 80;
 
-// Particle class for orbiting dots
-class Particle {
-    constructor() {
-        this.reset();
-    }
-
-    reset() {
-        this.angle = Math.random() * Math.PI * 2;
-        this.radius = Math.random() * 200 + 100; // Orbit distance
-        this.speed = (Math.random() * 0.01) + 0.002;
-        this.size = Math.random() * 2;
-        this.color = Math.random() > 0.1 ? "#00f2ff" : "#ff3c3c";
-    }
-
-    update() {
-        this.angle += this.speed;
-    }
-
-    draw() {
-        // X & Y calculation for flattened orbit
-        const x = canvas.width / 2 + Math.cos(this.angle) * this.radius * 2;
-        const y = canvas.height / 2 + Math.sin(this.angle) * this.radius * 0.5;
-
-        ctx.beginPath();
-        ctx.arc(x, y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-        
-        // Glow effect
-        ctx.shadowBlur = 5;
-        ctx.shadowColor = this.color;
-    }
+for (let i = 0; i < COUNT; i++) {
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 2 + 0.5,
+    dx: (Math.random() - 0.5) * 0.4,
+    dy: (Math.random() - 0.5) * 0.4,
+  });
 }
 
-// Initialize particles
-function init() {
-    for (let i = 0; i < 150; i++) {
-        particles.push(new Particle());
-    }
-}
-
-// Animate the orbit
 function animate() {
-    // semi-transparent background for trail effect
-    ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    particles.forEach(p => {
-        p.update();
-        p.draw();
-    });
+  particles.forEach(p => {
+    p.x += p.dx;
+    p.y += p.dy;
 
-    requestAnimationFrame(animate);
+    if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = "#38bdf8";
+    ctx.fill();
+  });
+
+  requestAnimationFrame(animate);
 }
 
-init();
 animate();
-
-// Responsive canvas
-window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
